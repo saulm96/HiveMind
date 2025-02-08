@@ -12,16 +12,23 @@ USE `HiveMind`;
 -- -----------------------------------------------------
 -- Table `users`
 -- -----------------------------------------------------
-DROP TABLE IF EXISTS `users`;
-
-CREATE TABLE IF NOT EXISTS `users` (
+CREATE TABLE IF NOT EXISTS `HiveMind`.`users` (
   `user_id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
-  `name` VARCHAR(100) NOT NULL,
-  `email` VARCHAR(100) NOT NULL,
-  `password` VARCHAR(255) NOT NULL,
+  `user_name` VARCHAR(90) NOT NULL,
+  `user_lastName` VARCHAR(90) NOT NULL,
+  `user_username` VARCHAR(45) NOT NULL,
+  `user_email` VARCHAR(100) NOT NULL,
+  `user_password` VARCHAR(150) NOT NULL,
+  `user_dateOfBirth` DATE NULL,
+  `user_phoneNumber` VARCHAR(45) NULL,
+  `user_isActivated` ENUM('True', 'False') NULL DEFAULT 'True',
+  `user_lastLogin` DATETIME NOT NULL,
   PRIMARY KEY (`user_id`),
-  UNIQUE INDEX `email_UNIQUE` (`email` ASC) VISIBLE
-) ENGINE=InnoDB;
+  UNIQUE INDEX `user_id_UNIQUE` (`user_id` ASC) VISIBLE,
+  UNIQUE INDEX `user_username_UNIQUE` (`user_username` ASC) VISIBLE,
+  UNIQUE INDEX `user_email_UNIQUE` (`user_email` ASC) VISIBLE)
+ENGINE = InnoDB;
+
 
 SET SQL_MODE=@OLD_SQL_MODE;
 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;
