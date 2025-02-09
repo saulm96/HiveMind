@@ -9,8 +9,21 @@ async function getAllUsers(){
     return users;
 }
 
+async function deactivateUser(id){
+    const user = await User.findByPk(id);
+
+    if(!user) throw new error.USER_NOT_FOUND;
+    
+    user.user_isActivated = user.user_isActivated === "True" ? "False" : "True";
+
+    await user.save()
+
+    return user;
+}
+
 export const functions = {
-    getAllUsers
+    getAllUsers,
+    deactivateUser
 }
 
 export default functions;
