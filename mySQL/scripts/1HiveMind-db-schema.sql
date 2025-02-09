@@ -31,7 +31,7 @@ CREATE TABLE IF NOT EXISTS `HiveMind`.`users` (
   `user_password` VARCHAR(150) NOT NULL,
   `user_dateOfBirth` VARCHAR(45) NULL,
   `user_phoneNumber` VARCHAR(45) NULL,
-  `user_isActivated` ENUM('Active', 'Inactive') NULL DEFAULT 'True',
+  `user_isActivated` ENUM('Active', 'Inactive') NULL DEFAULT 'Active',
   `user_lastLogin` DATETIME NOT NULL,
   PRIMARY KEY (`user_id`),
   UNIQUE INDEX `user_id_UNIQUE` (`user_id` ASC) VISIBLE,
@@ -64,8 +64,8 @@ ENGINE = InnoDB;
 DROP TABLE IF EXISTS `HiveMind`.`users_in_group` ;
 
 CREATE TABLE IF NOT EXISTS `HiveMind`.`users_in_group` (
-  `user_id` VARCHAR(45) NOT NULL,
-  `group_id` VARCHAR(45) NOT NULL,
+  `user_id` INT UNSIGNED NOT NULL,
+  `group_id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
   `joinedAt` DATE NOT NULL,
   `role_in_group` ENUM("owner", "admin", "leader", "user") NOT NULL,
   INDEX `user_id_idx` (`user_id` ASC) VISIBLE,
@@ -73,13 +73,13 @@ CREATE TABLE IF NOT EXISTS `HiveMind`.`users_in_group` (
   PRIMARY KEY (`user_id`, `group_id`),
   CONSTRAINT `user_id`
     FOREIGN KEY (`user_id`)
-    REFERENCES `HiveMind`.`users` (`user_name`)
-    ON DELETE NO ACTION
+    REFERENCES `HiveMind`.`users` (`user_id`)
+    ON DELETE CASCADE
     ON UPDATE NO ACTION,
   CONSTRAINT `group_id`
     FOREIGN KEY (`group_id`)
-    REFERENCES `HiveMind`.`groups` (`group_name`)
-    ON DELETE NO ACTION
+    REFERENCES `HiveMind`.`groups` (`group_id`)
+    ON DELETE CASCADE
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
 
