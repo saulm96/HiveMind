@@ -1,5 +1,7 @@
 import express from 'express';
 import dotenv from 'dotenv';
+import router from "./routers/router.js"
+
 
 dotenv.config();
 
@@ -10,9 +12,8 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static("src/public"));
 
-//Set up the router here
-
+app.use('/', router);
 
 app.listen(3000, () => {
-    console.log("Server is running on port 3000");
+    console.log(`Server started on port ${process.env.APP_PORT}`);
 });
