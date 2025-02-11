@@ -9,7 +9,6 @@ async function getAllUsers() {
     if (!users) throw new error.USER_NOT_FOUND;
     return users;
 }
-
 async function getUserById(id) {
     const user = await User.findByPk(id);
     if (!user) throw new error.USER_NOT_FOUND;
@@ -44,9 +43,6 @@ async function getUserByEmail(email) {
     if (!user) throw new error.USER_NOT_FOUND;
     return user
 }
-
-
-
 //User setters:
 async function deactivateUser(id) {
     const user = await User.findByPk(id);
@@ -58,19 +54,6 @@ async function deactivateUser(id) {
     await user.save()
 
     return user;
-}
-
-//User updaters:
-async function updateUser(id, data) {
-    const user = await User.findByPk(id);
-
-    if (!user) throw new error.USER_NOT_FOUND;
-
-    for (const key in data) {
-        user[key] = data[key];
-    }
-    await user.save();
-   return user;
 }
 
 
