@@ -1,7 +1,10 @@
-import { DataTypes} from "sequelize";
-import sequelize from "../config/sequelize.js"
+import { DataTypes, Model} from "sequelize";
+import sequelize from "../../config/sequelize.js";
 
-const User = sequelize.define("users", {
+
+class User extends Model {}
+
+User.init({
     user_id: {
         type: DataTypes.INTEGER.UNSIGNED,
         primaryKey: true,
@@ -46,7 +49,12 @@ const User = sequelize.define("users", {
         type: DataTypes.DATE,
         allowNull: false
     }
-})
+}
+, {
+    sequelize,
+    modelName: "users",
+    tableName: "users",
 
+});
 
 export default User;
