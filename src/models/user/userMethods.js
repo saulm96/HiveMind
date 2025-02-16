@@ -31,7 +31,19 @@ class UserMethods {
         return user;
     }
 
+    async craeteUser(name, lastName, username, email, password) {
+        if(!name, !lastName, !username, !email, !password) throw new error.MISSING_PARAMETERS;
 
+        const newUser = await User.create({
+            user_name: name,
+            user_last_name: lastName,
+            user_username: username,
+            user_email: email,
+            user_password: password,
+            user_confirmed_password: confirmedPassword
+        });
+        return newUser;
+    }
 }
 
 export {UserMethods}

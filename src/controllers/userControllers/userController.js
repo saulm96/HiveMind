@@ -10,7 +10,6 @@ async function getUserByUsername(username) {
 }
 
 
-
 export const functions = {
     getUserByEmail,
     getUserByUsername,

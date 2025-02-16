@@ -32,7 +32,7 @@ CREATE TABLE IF NOT EXISTS `HiveMind`.`users` (
   `user_dateOfBirth` VARCHAR(45) NULL,
   `user_phoneNumber` VARCHAR(45) NULL,
   `user_isActivated` ENUM('Active', 'Inactive') NULL DEFAULT 'Active',
-  `user_lastLogin` DATETIME NOT NULL,
+  `user_lastLogin` DATETIME NULL,
   PRIMARY KEY (`user_id`),
   UNIQUE INDEX `user_id_UNIQUE` (`user_id` ASC) VISIBLE,
   UNIQUE INDEX `user_username_UNIQUE` (`user_username` ASC) VISIBLE,
