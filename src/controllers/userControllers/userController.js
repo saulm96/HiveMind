@@ -6,7 +6,7 @@ async function getUserByEmail(email) {
     return await UserMethods.getUserByEmail(email);
 }
 async function getUserByUsername(username) {
-    return await UserMethods.getUserByUsername(username);
+    return await UserMethods.getUserByUsernameWithCaseInsensitiveForRegularSearch(username);
 }
 
 
