@@ -17,3 +17,5 @@ app.use('/', router);
 app.listen(3000, () => {
     console.log(`Server started on port ${process.env.APP_PORT}`);
 });
+
+export default app;
