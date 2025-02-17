@@ -1,60 +1,73 @@
-import { DataTypes, Model} from "sequelize";
+import { DataTypes, Model } from "sequelize";
 import sequelize from "../../config/sequelize.js";
-
 
 class User extends Model {}
 
-User.init({
-    user_id: {
-        type: DataTypes.INTEGER.UNSIGNED,
-        primaryKey: true,
-        allowNull: false,
-        autoIncrement: true,
+User.init(
+  {
+    id: {
+      type: DataTypes.UUID,
+      defaultValue: DataTypes.UUIDV4,
+      primaryKey: true,
     },
-    user_name: {
-        type: DataTypes.STRING(90),
-        allowNull: false,
+    firstName: {
+      type: DataTypes.STRING(90),
+      allowNull: false,
     },
-    user_lastName: {
-        type: DataTypes.STRING(90),
-        allowNull: false
+    lastName: {
+      type: DataTypes.STRING(90),
+      allowNull: false,
     },
-    user_username: {
-        type: DataTypes.STRING(45),
-        allowNull: false
+    username: {
+      type: DataTypes.STRING(45),
+      allowNull: false,
+      unique: true,
+      validate: {
+        len: [3, 45],
+      },
     },
-    user_email: {
-        type: DataTypes.STRING(100),
-        allowNull: false,
-        unique: true
+    email: {
+      type: DataTypes.STRING(100),
+      allowNull: false,
+      unique: true,
+      validate: {
+        isEmail: true, 
+      },
     },
-    user_password: {
-        type: DataTypes.STRING(100),
-        allowNull: false
+    password: {
+      type: DataTypes.STRING(100),
+      allowNull: false,
+      validate: {
+        len: [8, 100], 
+      },
     },
-    user_dateOfBirth: {
-        type: DataTypes.DATE,
-        allowNull: true
+    dateOfBirth: {
+      type: DataTypes.DATE,
+      allowNull: true,
     },
-    user_phoneNumber: {
-        type: DataTypes.STRING(45),
-        allowNull: true
+    phoneNumber: {
+      type: DataTypes.STRING(45),
+      allowNull: true,
+      validate: {
+        isNumeric: true, 
+      },
     },
-    user_isActivated: {
-        type: DataTypes.ENUM("True", "False"),
-        defaultValue: "True",
-        allowNull: false
+    isActivated: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: true,
+      allowNull: false,
     },
-    user_lastLogin: {
-        type: DataTypes.DATE,
-        allowNull: false
-    }
-}
-, {
+    lastLogin: {
+      type: DataTypes.DATE,
+      allowNull: true, 
+    },
+  },
+  {
     sequelize,
-    modelName: "users",
+    modelName: "User", 
     tableName: "users",
-
-});
+    timestamps: false, 
+  }
+);
 
 export default User;
