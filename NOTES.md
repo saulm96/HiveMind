@@ -1,9 +1,11 @@
 Detailed step-by-step itinerary for implementing the email verification system:
 
 1. Environment Setup
-   - Install required dependencies (nodemailer, dotenv)
+   - Install required dependencies (aws-ses)
+      -Nodemailer ✅
    - Configure .env file with environment variables
-   - Set up email account for sending emails
+      -Configured four variables with the email service, the email and the password of the email✅
+   - Set up email account for sending emails ✅
 
 2. Database Modifications
    - Update user model

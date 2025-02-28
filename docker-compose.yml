@@ -1,8 +1,9 @@
+version: '3.8'
+
 services:
   db:
-    container_name: ${DB_HOST}
-    
     image: mysql:8.0
+    container_name: ${DB_HOST}
     restart: unless-stopped
     environment:
       MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
@@ -11,19 +12,38 @@ services:
       MYSQL_DATABASE: ${DB_DATABASE}
     ports:
       - ${DB_PORT}:3306
-      
     volumes:
       - ./mySQL/scripts:/docker-entrypoint-initdb.d:ro
-      - ./mySQL/config/mycustom.cnf:/etc/mysql/config.d/custom.cnf
-      - /var/lib/mysql
+      - ./mySQL/config/mycustom.cnf:/etc/mysql/config.d/mycustom.cnf
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 15s
+      timeout: 10s
+      retries: 5
+    networks:
+      - app_network
+
   backend:
     build: .
     container_name: ${APP_HOST}
     restart: unless-stopped
     ports:
       - ${APP_PORT}:3000
-    depends_on: 
-      - db
+    depends_on:
+      db:
+        condition: service_healthy
     volumes:
       - .:/app
-      - /app/node_modules
+      - node_modules:/app/node_modules
+    networks:
+      - app_network
+
+
+volumes:
+  node_modules:
+  mysql_data:
+
+networks:
+  app_network:
+    driver: bridge
