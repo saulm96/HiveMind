@@ -1,8 +1,9 @@
 import authController from "./authController.js";
+import { sign } from "../../config/jwt.js";
 
-async function register(req, res) {
+async function regularRegister(req, res) {
     try {
-        const result = await authController.register(req.body);
+        const result = await authController.regularRegister(req.body);
         res.status(201).json({
             success: true,
             message: 'User registered successfully',
@@ -18,9 +19,41 @@ async function register(req, res) {
         });
     }
 }
+async function regularLogin(req, res) {
+    try {
+        const validUser = await authController.regularLogin(req.body);
+
+        const userToken = sign({
+            id: validUser.id,
+            username: validUser.username,
+            email: validUser.email,
+        });
+
+        res.cookie('token', userToken, {
+            httpOnly: true,
+            samsesite: 'strict',
+            maxAge: 24 * 60 * 60 * 1000, // 1 day
+            path: '/',
+        });
+
+        res.status(200).json({
+            success: true,
+            message: 'User logged in successfully',
+        });
+    } catch (error) {
+        const statusCode = error.status || 500;
+        const message = error.message || 'Internal server error';
+
+        res.status(statusCode).json({
+            success: false,
+            error: message
+        });
+    }
+}
 
 export const functions = {
-    register
+    regularRegister,
+    regularLogin
 }
 
 export default functions;
