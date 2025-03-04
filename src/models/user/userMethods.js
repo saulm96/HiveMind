@@ -16,6 +16,14 @@ class UserMethods {
         if (!user.length) throw new error.USER_NOT_FOUND();
         return user;
     }
+
+    static async getUserByUsernameWithExactMatchForLogin(username) {
+        const user = await User.findOne({
+            where: { username: username },
+        });
+        if(!user) throw new error.USER_NOT_FOUND();
+        return user;
+    }
     static async getUserByUsernameForRegister(username) {
         const user = await User.findOne({
             where: sequelize.where(

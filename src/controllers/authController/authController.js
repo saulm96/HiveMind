@@ -4,7 +4,7 @@ import error from "../../utils/errors/userErrors.js";
 
 
 
-async function register(userData) {
+async function regularRegister(userData) {
     const {
         firstName,
         lastName,
@@ -23,30 +23,16 @@ async function register(userData) {
         throw new error.PASSWORD_DONT_MATCH();
     }
 
-    // Check username availability
-    try {
-        const existingUser = await UserMethods.getUserByUsernameForRegister(username);
-        if (existingUser) {
-            throw new error.USERNAME_ALREADY_EXISTS();
-        }
-    } catch (err) {
-        if (!(err instanceof error.USER_NOT_FOUND)) {
-            throw err; // Re-throw unexpected errors
-        }
-        // Username is available, continue
+    const existingUser = await UserMethods.getUserByUsernameForRegister(username);
+
+    if (existingUser) {
+        throw new error.USERNAME_ALREADY_EXISTS();
     }
 
-    // Check email availability
-    try {
-        const existingEmail = await UserMethods.getUserByEmail(email);
-        if (existingEmail) {
-            throw new error.EMAIL_ALREADY_EXISTS();
-        }
-    } catch (err) {
-        if (!(err instanceof error.USER_NOT_FOUND)) {
-            throw err;
-        }
-        // Email is available, continue
+    const existingEmail = await UserMethods.getUserByEmail(email);
+
+    if (existingEmail) {
+        throw new error.EMAIL_ALREADY_EXISTS();
     }
 
     const hashedPassword = await hashPassword(password);
@@ -63,8 +49,31 @@ async function register(userData) {
     return user;
 }
 
+async function regularLogin(userData) {
+    const { username, password } = userData;
+
+    // Validate input
+    if (!username || !password) {
+        throw new error.MISSING_PARAMETERS();
+    }
+    const user = await UserMethods.getUserByUsernameWithExactMatchForLogin(username);
+    const passwordMatch = await verifyPassword(password, user.password);
+
+    if (!user) {
+        throw new error.INVALID_CREDENTIALS_IN_LOGIN();
+    }
+
+    if (!passwordMatch) {
+        throw new error.INVALID_CREDENTIALS_IN_LOGIN();
+    }
+
+    return user;
+}
+
+
 export const functions = {
-    register
+    regularRegister,
+    regularLogin
 }
 
 export default functions;
