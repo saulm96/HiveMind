@@ -7,7 +7,11 @@ const router = Router();
 
 router.get("/username=:username", userApiController.getUserByUsername);
 
-router.post("/register", authApiController.register)
+
+
+//Auth routers
+router.post("/register", authApiController.regularRegister)
+router.post("/login", authApiController.regularLogin)
 
 
 

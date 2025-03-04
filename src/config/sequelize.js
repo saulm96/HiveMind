@@ -2,29 +2,11 @@ import { Sequelize } from "sequelize";
 import dotenv from "dotenv";
 
 dotenv.config();
-/* const sequelize = new Sequelize(
+const sequelize = new Sequelize(
   process.env.DB_DATABASE,
   process.env.DB_USER,
   process.env.DB_PASSWORD,
   {
-    host: process.env.DB_HOST,
-    dialect: process.env.DB_DIALECT,
-    port: 3306,
-    define: {
-      timestamps: false,
-      freezeTableName: true,
-    },
-  }
-);
- */
-//For testing:
-const sequelize = new Sequelize(
-  process.env.NODE_ENV === "test"
-   ? "sqlite::memory:"
-   : {
-    database: process.env.DB_DATABASE,
-    username: process.env.DB_USER,
-    password: process.env.DB_PASSWORD,
     host: process.env.DB_HOST,
     dialect: process.env.DB_DIALECT,
     port: 3306,

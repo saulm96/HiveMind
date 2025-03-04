@@ -1,7 +1,7 @@
-import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
+import jwt from "jsonwebtoken";
 
-dotenv
+dotenv.config();
 const SECRET = process.env.JWT_SECRET;
 
 function sign(data, expiresIn = "1h") {

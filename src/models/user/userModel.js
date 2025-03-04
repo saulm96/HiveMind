@@ -24,6 +24,7 @@ User.init(
       unique: true,
       validate: {
         len: [3, 45],
+        isAlpha: true,
       },
     },
     email: {
