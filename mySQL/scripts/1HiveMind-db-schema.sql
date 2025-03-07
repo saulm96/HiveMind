@@ -17,52 +17,50 @@ CREATE TABLE IF NOT EXISTS `HiveMind`.`users` (
   `lastName` VARCHAR(90) NOT NULL,
   `username` VARCHAR(45) NOT NULL UNIQUE,
   `email` VARCHAR(100) NOT NULL UNIQUE,
-  `password` VARCHAR(150) NOT NULL,
   `dateOfBirth` DATE NULL,
   `phoneNumber` VARCHAR(20) NULL,
   `isActivated` BOOLEAN NOT NULL DEFAULT TRUE,
   `lastLogin` DATETIME NULL,
+  `emailVerified` BOOLEAN NOT NULL DEFAULT FALSE,
   PRIMARY KEY (`id`)
 ) ENGINE = InnoDB;
 
--- -----------------------------------------------------
--- Table `HiveMind`.`groups`
--- -----------------------------------------------------
-DROP TABLE IF EXISTS `HiveMind`.`groups`;
 
-CREATE TABLE IF NOT EXISTS `HiveMind`.`groups` (
+
+-- -----------------------------------------------------
+-- Table `for authentication methods`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `HiveMind`.`user_auth` (
   `id` CHAR(36) NOT NULL DEFAULT (UUID()),
-  `name` VARCHAR(90) NOT NULL UNIQUE,
-  `description` VARCHAR(360) NOT NULL,
-  `image` VARCHAR(90) NULL,
-  `createdAt` DATE NOT NULL,
-  `status` ENUM("Active", "Inactive", "Archived") NULL DEFAULT 'Active',
-  PRIMARY KEY (`id`)
+  `userId` CHAR(36) NOT NULL,
+  `authType` ENUM('local', 'google', 'facebook') NOT NULL,
+  `authIdentifier` VARCHAR(255) NULL, 
+  `password` VARCHAR(150) NULL, 
+  `isActive` BOOLEAN NOT NULL DEFAULT TRUE,
+  `createdAt` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updatedAt` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  FOREIGN KEY (`userId`) REFERENCES `users`(`id`) ON DELETE CASCADE,
+  UNIQUE INDEX `unique_user_auth_type` (`userId`, `authType`)
 ) ENGINE = InnoDB;
 
--- -----------------------------------------------------
--- Table `HiveMind`.`users_in_group`
--- -----------------------------------------------------
-DROP TABLE IF EXISTS `HiveMind`.`users_in_group`;
 
-CREATE TABLE IF NOT EXISTS `HiveMind`.`users_in_group` (
-  `user_id` CHAR(36) NOT NULL,
-  `group_id` CHAR(36) NOT NULL,
-  `joinedAt` DATE NOT NULL,
-  `role_in_group` ENUM("owner", "admin", "leader", "user") NOT NULL,
-  PRIMARY KEY (`user_id`, `group_id`),
-  INDEX `user_id_idx` (`user_id` ASC),
-  INDEX `group_id_idx` (`group_id` ASC),
-  CONSTRAINT `fk_user`
-    FOREIGN KEY (`user_id`)
-    REFERENCES `HiveMind`.`users` (`id`)
-    ON DELETE CASCADE
-    ON UPDATE NO ACTION,
-  CONSTRAINT `fk_group`
-    FOREIGN KEY (`group_id`)
-    REFERENCES `HiveMind`.`groups` (`id`)
-    ON DELETE CASCADE
-    ON UPDATE NO ACTION
+
+-- -----------------------------------------------------
+-- Table `HiveMind`.`user_tokens` to store different kind of tokens like refresh token, verification token, password reset token
+-- -----------------------------------------------------
+
+CREATE TABLE IF NOT EXISTS `HiveMind`.`user_tokens` (
+  `id` CHAR(36) NOT NULL DEFAULT (UUID()),
+  `userId` CHAR(36) NOT NULL,
+  `token` VARCHAR(255) NOT NULL,
+  `tokenType` ENUM('verification', 'password_reset', 'refresh_token') NOT NULL,
+  `expiresAt` DATETIME NOT NULL,
+  `createdAt` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `usedAt` DATETIME NULL,
+  PRIMARY KEY (`id`),
+  FOREIGN KEY (`userId`) REFERENCES `users`(`id`) ON DELETE CASCADE,
+  INDEX `idx_token` (`token`)
 ) ENGINE = InnoDB;
 
 SET SQL_MODE=@OLD_SQL_MODE;
