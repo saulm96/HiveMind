@@ -35,13 +35,6 @@ User.init(
         isEmail: true, 
       },
     },
-    password: {
-      type: DataTypes.STRING(100),
-      allowNull: false,
-      validate: {
-        len: [8, 100], 
-      },
-    },
     dateOfBirth: {
       type: DataTypes.DATE,
       allowNull: true,
@@ -56,6 +49,11 @@ User.init(
     isActivated: {
       type: DataTypes.BOOLEAN,
       defaultValue: true,
+      allowNull: false,
+    },
+    emailVerified: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false,
       allowNull: false,
     },
     lastLogin: {

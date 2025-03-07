@@ -11,7 +11,7 @@ function sign(data, expiresIn = "1h") {
 
 function verify(token) {
     try {
-        const response = jwr - verify(token, SECRET);
+        const response = jwt.verify(token, SECRET);
         return response;
     } catch (error) {
         console.log(error);
