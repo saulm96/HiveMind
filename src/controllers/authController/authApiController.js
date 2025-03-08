@@ -34,8 +34,29 @@ async function regularLogin(req, res) {
     }
 }
 
+async function regularRegister(req, res) {
+    try {
+        const registeredUser = await authController.regularRegister(req.body);
+        res.status(200).json({
+            success: true,
+            message: 'User registered successfully',
+            user: registeredUser
+        });
+    } catch (error) {
+        console.error(error);
+        const statusCode = error.status || 500;
+        const message = error.message || 'Internal server error';
+
+        res.status(statusCode).json({
+            success: false,
+            error: message
+        });
+    }
+}
+
 export const functions = {
-    regularLogin
+    regularLogin,
+    regularRegister
 }
 
 export default functions;

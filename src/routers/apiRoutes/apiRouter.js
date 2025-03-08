@@ -9,6 +9,6 @@ const router = Router();
 router.use( "/users", userApiRutes)
 
 router.post("/login", authApiController.regularLogin);
-
+router.post("/register", authApiController.regularRegister);
 
 export default router;

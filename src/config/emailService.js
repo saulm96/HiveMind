@@ -1,5 +1,6 @@
 import { SESClient, SendEmailCommand } from "@aws-sdk/client-ses";
 import dotenv from "dotenv";
+
 dotenv.config();
 
 class EmailService {

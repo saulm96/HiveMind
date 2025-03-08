@@ -1,7 +1,7 @@
 import { DataTypes, Model } from "sequelize";
 import sequelize from "../../config/sequelize.js";
 
-class User extends Model {}
+class User extends Model { }
 
 User.init(
   {
@@ -32,7 +32,7 @@ User.init(
       allowNull: false,
       unique: true,
       validate: {
-        isEmail: true, 
+        isEmail: true,
       },
     },
     dateOfBirth: {
@@ -40,10 +40,10 @@ User.init(
       allowNull: true,
     },
     phoneNumber: {
-      type: DataTypes.STRING(45),
+      type: DataTypes.STRING(20),
       allowNull: true,
       validate: {
-        isNumeric: true, 
+        isNumeric: true,
       },
     },
     isActivated: {
@@ -58,15 +58,26 @@ User.init(
     },
     lastLogin: {
       type: DataTypes.DATE,
-      allowNull: true, 
+      allowNull: true,
     },
   },
   {
     sequelize,
-    modelName: "User", 
+    modelName: "User",
     tableName: "users",
-    timestamps: false, 
+    timestamps: false,
+    hooks: {
+      beforeCreate: (user) => {
+        if (user.email) user.email = user.email.toLowerCase();
+        if (user.username) user.username = user.username.trim();
+      },
+      beforeUpdate: (user) => {
+        if (user.email) user.email = user.email.toLowerCase();
+      }
+    }
   }
 );
+
+
 
 export default User;
