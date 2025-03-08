@@ -1,7 +1,7 @@
 import sequelize from "sequelize";
-import {User, UserAuth, UserToken} from "./userIndex.js";
+import { User, UserAuth, UserToken } from "./userIndex.js";
 import error from "../../utils/errors/userErrors.js";
-import { hashPassword, verifyPassword} from "../../config/bcrypt.js";
+import { hashPassword, verifyPassword } from "../../config/bcrypt.js";
 
 class UserMethods {
 
@@ -37,7 +37,7 @@ class UserMethods {
         const user = await User.findOne({
             where: { username: username },
         });
-        if(!user) throw new error.USER_NOT_FOUND();
+        if (!user) throw new error.USER_NOT_FOUND();
         return user;
     }
 
@@ -84,29 +84,29 @@ class UserMethods {
                 }
             }]
         });
-        if(!user || !user.authMethods || !user.authMethods.length) throw new error.INVALID_CREDENTIALS_IN_LOGIN();
-        
+        if (!user || !user.authMethods || !user.authMethods.length) throw new error.INVALID_CREDENTIALS_IN_LOGIN();
+
         const localAuth = user.authMethods[0];
         const passwordMatch = await verifyPassword(password, localAuth.password);
-        if(!passwordMatch) throw new error.INVALID_CREDENTIALS_IN_LOGIN();
+        if (!passwordMatch) throw new error.INVALID_CREDENTIALS_IN_LOGIN();
 
-        const userObj = user.get({plain: true});
+        const userObj = user.get({ plain: true });
         delete userObj.authMethods;
         return userObj;
     }
 
-    
-/*     static async createUserUsingRegularRegister(userData) {
-        const { firstName, lastName, username, email, password } = userData;
-        const t = await sequelize.Transaction();
 
+
+    static async createUserUsingRegularRegister(userData) {
+        const { firstName, lastName, username, email, password } = userData;
+
+        const t = await User.sequelize.transaction();
         const newUser = await User.create({
             firstName,
             lastName,
             username,
             email,
-            emailVerified: false,
-        }, {transaction: t});
+        }, { transaction: t });
 
         const hashedPassword = await hashPassword(password);
         await UserAuth.create({
@@ -115,12 +115,24 @@ class UserMethods {
             authIdentifier: email,
             password: hashedPassword,
             isActive: true,
-        }, {transaction: t});
+        }, { transaction: t });
 
         await t.commit();
 
         return newUser;
-    } */
+    }
+
+    static async validateEmailAndUsernameAvailability(email, username) {
+        const user = await User.findOne({
+            where: {
+                [sequelize.Op.or]: [
+                    { email: email },
+                    { username: username }
+                ]
+            }
+        });
+        if (user) throw new error.EMAIL_OR_USERNAME_ALREADY_IN_USE();
+    }
 }
 
 export { UserMethods };
