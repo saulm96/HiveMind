@@ -1,4 +1,5 @@
 import { UserMethods } from "../../models/user/userMethods.js";
+import emailService from "../../config/emailService.js";
 import error from "../../utils/errors/userErrors.js";
 
 
@@ -22,6 +23,8 @@ async function regularRegister(userData) {
         throw new error.MISSING_PARAMETERS();
     }
     
+    const availableUser = await UserMethods.validateEmailAndUsernameAvailability(email, username);
+    if (availableUser) throw new error.EMAIL_OR_USERNAME_ALREADY_IN_USE();
 
     if (password !== confirmedPassword) {
         throw new error.PASSWORDS_DONT_MATCH();
