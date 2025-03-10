@@ -72,6 +72,10 @@ async function regularRegister(userData) {
     return newUser;
 }
 
+
+
+
+
 async function verifyUserByEmail(token) {
     const decoded = verify(token);
     if (decoded.error || decoded.purpose !== "email_verification") throw new error.INVALID_TOKEN();
@@ -84,7 +88,7 @@ async function verifyUserByEmail(token) {
 
     if (user.emailVerified) throw new error.EMAIL_ALREADY_VERIFIED();
     
-    await UserMethods.toggleUserVerifiedStatus(user.id);
+    await UserMethods.toggleUserVerifiedStatusAndMarkTheTokenAsUsed(user.id);
     
     return user;
 }

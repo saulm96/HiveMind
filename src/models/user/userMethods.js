@@ -189,10 +189,19 @@ class UserMethods {
 
         return userToken
     }
-    static async toggleUserVerifiedStatus(userId) {
+    static async toggleUserVerifiedStatusAndMarkTheTokenAsUsed(userId) {
         const user = await User.findByPk(userId);
         user.emailVerified = true;
         await user.save();
+
+        const token = await UserToken.findOne({
+            where: {
+                userId: userId,
+                tokenType: "email_verification"
+            }
+        })
+        token.usedAt = new Date();
+        await token.save();
         return user;
     }
 }
