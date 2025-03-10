@@ -54,9 +54,25 @@ async function regularRegister(req, res) {
     }
 }
 
+async function verifyUserByEmail(req, res) {
+    try {
+        const token = req.params.token;
+        await authController.verifyUserByEmail(token);
+    } catch (error) {
+        console.error(error);
+        const statusCode = error.status || 500;
+        const message = error.message || 'Internal server error';
+
+        res.status(statusCode).json({
+            success: false,
+            error: message
+        });
+    }
+}
 export const functions = {
     regularLogin,
-    regularRegister
+    regularRegister,
+    verifyUserByEmail
 }
 
 export default functions;

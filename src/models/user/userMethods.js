@@ -1,6 +1,7 @@
 import sequelize from "sequelize";
 import { User, UserAuth, UserToken } from "./userIndex.js";
 import error from "../../utils/errors/userErrors.js";
+import { generateEmailVerificationToken } from "../../config/jwt.js";
 import { hashPassword, verifyPassword } from "../../config/bcrypt.js";
 
 class UserMethods {
@@ -12,7 +13,6 @@ class UserMethods {
      * @returns {Promise<Array>} - A promise that resolves to an array of user objects.
      * @throws {USER_NOT_FOUND} - If no users are found with the given substring in their username.
      */
-
     static async getUserByUsernameWithCaseInsensitiveForRegularSearch(username) {
         const user = await User.findAll({
             where: sequelize.where(
@@ -72,9 +72,6 @@ class UserMethods {
      * all fields except authMethods.
      * @throws {INVALID_CREDENTIALS_IN_LOGIN} - If the email or password is invalid.
      */
-
-
-    
     static async authenticateLocalUser(email, password) {
         const user = await User.findOne({
             where: { email: email },
@@ -98,7 +95,6 @@ class UserMethods {
         return userObj;
     }
 
-
     /**
      * Checks the availability of an email and username.
      * 
@@ -109,7 +105,6 @@ class UserMethods {
      * @throws {EMAIL_OR_USERNAME_ALREADY_IN_USE} - If either the email or 
      * username is already in use.
      */
-
     static async validateEmailAndUsernameAvailability(email, username) {
         const user = await User.findOne({
             where: {
@@ -158,6 +153,48 @@ class UserMethods {
         return newUser;
     }
 
+    static async saveTokenToVerifyEmail(userId, token) {
+        const newTokenField = await UserToken.create({
+            userId: userId,
+            token: token,
+            tokenType: "email_verification",
+            expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000),
+        })
+
+        return newTokenField
+    }
+
+    static async verifyEmailToken(userId, token) {
+        const userToken = await UserToken.findOne({
+            where: {
+                userId: userId,
+                token: token,
+                tokenType: "email_verification"
+            }
+        })
+        if (userToken) {
+            return await User.findOne({
+                where: {
+                    id: userId
+                },
+                include: [{
+                    model: UserToken,
+                    as: 'tokens',
+                    where: {
+                        userId: userId
+                    }
+                }]
+            })
+        }
+
+        return userToken
+    }
+    static async toggleUserVerifiedStatus(userId) {
+        const user = await User.findByPk(userId);
+        user.emailVerified = true;
+        await user.save();
+        return user;
+    }
 }
 
 export { UserMethods };

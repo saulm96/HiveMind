@@ -47,6 +47,20 @@ class EMAIL_NOT_VERIFIED extends Error {
     }
 }
 
+class INVALID_TOKEN extends Error {
+    constructor() {
+        super('Invalid token'),
+            this.status = 401;
+    }
+}
+
+class EMAIL_ALREADY_VERIFIED extends Error {
+    constructor() {
+        super('Email already verified'),
+            this.status = 400;
+    }
+}
+
 export const errors = {
     USER_NOT_FOUND,
     INVALID_CREDENTIALS_IN_LOGIN,
@@ -54,7 +68,9 @@ export const errors = {
     MISSING_PARAMETERS,
     PASSWORDS_DONT_MATCH,
     EMAIL_OR_USERNAME_ALREADY_IN_USE,
-    EMAIL_NOT_VERIFIED
+    EMAIL_NOT_VERIFIED,
+    INVALID_TOKEN,
+    EMAIL_ALREADY_VERIFIED
 
 }
 

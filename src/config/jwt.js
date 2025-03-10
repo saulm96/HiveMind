@@ -19,7 +19,7 @@ function generateEmailVerificationToken(userId, email) {
     return jwt.sign({
         userId,
         email,
-        purpose: "email-verification"
+        purpose: "email_verification"
     }, SECRET, {
         expiresIn: "24h"
     })
@@ -34,4 +34,4 @@ function verify(token) {
     }
 }
 
-export {verify,generateAuthToken ,generateEmailVerificationToken };
+export { verify, generateAuthToken, generateEmailVerificationToken };
