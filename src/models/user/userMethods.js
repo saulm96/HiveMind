@@ -72,6 +72,9 @@ class UserMethods {
      * all fields except authMethods.
      * @throws {INVALID_CREDENTIALS_IN_LOGIN} - If the email or password is invalid.
      */
+
+
+    
     static async authenticateLocalUser(email, password) {
         const user = await User.findOne({
             where: { email: email },
@@ -96,7 +99,40 @@ class UserMethods {
     }
 
 
+    /**
+     * Checks the availability of an email and username.
+     * 
+     * @param {string} email - The email to verify for availability.
+     * @param {string} username - The username to verify for availability.
+     * @returns {Promise<void>} - A promise that resolves if both the email and 
+     * username are available.
+     * @throws {EMAIL_OR_USERNAME_ALREADY_IN_USE} - If either the email or 
+     * username is already in use.
+     */
 
+    static async validateEmailAndUsernameAvailability(email, username) {
+        const user = await User.findOne({
+            where: {
+                [sequelize.Op.or]: [
+                    { email: email },
+                    { username: username }
+                ]
+            }
+        });
+        if (user) throw new error.EMAIL_OR_USERNAME_ALREADY_IN_USE();
+    }
+
+    /**
+     * Creates a new user with the given data, using a local auth.
+     * 
+     * @param {object} userData - The data to create a new user with.
+     * @param {string} userData.firstName - The first name of the user to create.
+     * @param {string} userData.lastName - The last name of the user to create.
+     * @param {string} userData.username - The username of the user to create.
+     * @param {string} userData.email - The email of the user to create.
+     * @param {string} userData.password - The password of the user to create.
+     * @returns {Promise<User>} - A promise that resolves to the newly created user.
+     */
     static async createUserUsingRegularRegister(userData) {
         const { firstName, lastName, username, email, password } = userData;
 
@@ -122,17 +158,6 @@ class UserMethods {
         return newUser;
     }
 
-    static async validateEmailAndUsernameAvailability(email, username) {
-        const user = await User.findOne({
-            where: {
-                [sequelize.Op.or]: [
-                    { email: email },
-                    { username: username }
-                ]
-            }
-        });
-        if (user) throw new error.EMAIL_OR_USERNAME_ALREADY_IN_USE();
-    }
 }
 
 export { UserMethods };

@@ -1,6 +1,6 @@
 INSERT INTO `HiveMind`.`users` (`id`, `firstName`, `lastName`, `username`, `email`, `dateOfBirth`, `phoneNumber`, `isActivated`, `lastLogin`, `emailVerified`)
 VALUES
-  (UUID(), 'Saul', 'Mora', 'BigSamo', 'saulmorahernandez96@gmail.com', '1996-07-10', '+34123456789', TRUE, '2025-02-08 20:42:16', FALSE);
+  (UUID(), 'Saul', 'Mora', 'BigSamo', 'saulmorahernandez96@gmail.com', '1996-07-10', '+34123456789', TRUE, '2025-02-08 20:42:16', TRUE);
 
 INSERT INTO `HiveMind`.`user_auth` (`id`, `userId`, `authType`, `password`, `isActive`, `createdAt`, `updatedAt`)
 VALUES

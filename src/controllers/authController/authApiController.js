@@ -1,11 +1,11 @@
 import authController from "./authController.js";
-import { sign } from "../../config/jwt.js";
+import { generateAuthToken } from "../../config/jwt.js";
 
 async function regularLogin(req, res) {
     try {
         const validUser = await authController.regularLogin(req.body);
 
-        const userToken = sign({
+        const userToken = generateAuthToken({
             id: validUser.id,
             username: validUser.username,
             email: validUser.email,

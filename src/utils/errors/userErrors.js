@@ -40,13 +40,21 @@ class EMAIL_OR_USERNAME_ALREADY_IN_USE extends Error {
     }
 }
 
+class EMAIL_NOT_VERIFIED extends Error {
+    constructor() {
+        super('Please verify your email before logging in'),
+            this.status = 400;
+    }
+}
+
 export const errors = {
     USER_NOT_FOUND,
     INVALID_CREDENTIALS_IN_LOGIN,
     PASSWORD_DONT_MATCH,
     MISSING_PARAMETERS,
     PASSWORDS_DONT_MATCH,
-    EMAIL_OR_USERNAME_ALREADY_IN_USE
+    EMAIL_OR_USERNAME_ALREADY_IN_USE,
+    EMAIL_NOT_VERIFIED
 
 }
 

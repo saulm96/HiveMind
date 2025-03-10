@@ -4,11 +4,26 @@ import jwt from "jsonwebtoken";
 dotenv.config();
 const SECRET = process.env.JWT_SECRET;
 
-function sign(data, expiresIn = "1h") {
-    const token = jwt.sign(data, SECRET, { expiresIn });
-    return token;
-}
 
+function generateAuthToken(userId, username, email) {
+    return jwt.sign({
+        userId,
+        username,
+        email,
+        purpose: "authentication"
+    }, SECRET, {
+        expiresIn: "1h"
+    })
+}
+function generateEmailVerificationToken(userId, email) {
+    return jwt.sign({
+        userId,
+        email,
+        purpose: "email-verification"
+    }, SECRET, {
+        expiresIn: "24h"
+    })
+}
 function verify(token) {
     try {
         const response = jwt.verify(token, SECRET);
@@ -19,4 +34,4 @@ function verify(token) {
     }
 }
 
-export { sign, verify };
+export {verify,generateAuthToken ,generateEmailVerificationToken };
