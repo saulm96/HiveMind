@@ -1,1 +1,1 @@
-Modify the passwords in the database using bcryptjs to test if the regular login is wokring normally
+Need to change the function generateAuthToken in the jwt ocnfig file because there is not a role field for the user model in the database. For now the token will sign the userId, email and username but in the future it will only store the userId, the role and the isVerified.

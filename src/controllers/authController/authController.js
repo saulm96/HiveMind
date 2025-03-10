@@ -1,5 +1,6 @@
 import { UserMethods } from "../../models/user/userMethods.js";
-import emailService from "../../config/emailService.js";
+import { generateEmailVerificationToken } from "../../config/jwt.js";
+import emailService from "../../services/emailServices/emailService.js";
 import error from "../../utils/errors/userErrors.js";
 
 
@@ -13,6 +14,9 @@ async function regularLogin(userData) {
     const user = await UserMethods.authenticateLocalUser(email, password);
     if (!user) throw new error.INVALID_CREDENTIALS_IN_LOGIN();
 
+    if (user.emailVerified == false) throw new error.EMAIL_NOT_VERIFIED();
+    
+
     return user;
 }
 
@@ -22,7 +26,7 @@ async function regularRegister(userData) {
     if (!firstName || !lastName || !username || !email || !password || !confirmedPassword) {
         throw new error.MISSING_PARAMETERS();
     }
-    
+
     const availableUser = await UserMethods.validateEmailAndUsernameAvailability(email, username);
     if (availableUser) throw new error.EMAIL_OR_USERNAME_ALREADY_IN_USE();
 
@@ -32,7 +36,11 @@ async function regularRegister(userData) {
 
     delete userData.condirmedPassword;
 
-    return await UserMethods.createUserUsingRegularRegister(userData);
+    const newUser = await UserMethods.createUserUsingRegularRegister(userData);
+    const verificationToken = generateEmailVerificationToken(newUser.id);
+    const emailVerification = await emailService.sendVerificationEmail(email, verificationToken);
+
+    return newUser;
 }
 
 export const functions = {
