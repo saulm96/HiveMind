@@ -172,8 +172,28 @@ class UserMethods {
                 tokenType: "email_verification"
             }
         })
+        if (userToken) {
+            return await User.findOne({
+                where: {
+                    id: userId
+                },
+                include: [{
+                    model: UserToken,
+                    as: 'tokens',
+                    where: {
+                        userId: userId
+                    }
+                }]
+            })
+        }
 
         return userToken
+    }
+    static async toggleUserVerifiedStatus(userId) {
+        const user = await User.findByPk(userId);
+        user.emailVerified = true;
+        await user.save();
+        return user;
     }
 }
 

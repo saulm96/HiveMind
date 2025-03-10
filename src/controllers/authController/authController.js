@@ -23,6 +23,7 @@ async function regularLogin(userData) {
     }
 
     const user = await UserMethods.authenticateLocalUser(email, password);
+    console.log(user);
     if (!user) throw new error.INVALID_CREDENTIALS_IN_LOGIN();
 
     if (user.emailVerified == false) throw new error.EMAIL_NOT_VERIFIED();
@@ -62,8 +63,10 @@ async function regularRegister(userData) {
     delete userData.confirmedPassword;
 
     const newUser = await UserMethods.createUserUsingRegularRegister(userData);
+
     const verificationToken = generateEmailVerificationToken(newUser.id, email);
     await UserMethods.saveTokenToVerifyEmail(newUser.id, verificationToken);
+
     await emailService.sendVerificationEmail(email, verificationToken);
 
     return newUser;
@@ -77,13 +80,12 @@ async function verifyUserByEmail(token) {
     
     const user = await UserMethods.verifyEmailToken(userId, token);
     if (!user) throw new error.INVALID_TOKEN();
-
     if (user.email !== email) throw new error.INVALID_TOKEN();
 
     if (user.emailVerified) throw new error.EMAIL_ALREADY_VERIFIED();
-
-    user.emailVerified = true;
-    await user.save();
+    
+    await UserMethods.toggleUserVerifiedStatus(user.id);
+    
     return user;
 }
 

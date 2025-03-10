@@ -57,12 +57,7 @@ async function regularRegister(req, res) {
 async function verifyUserByEmail(req, res) {
     try {
         const token = req.params.token;
-        const user = await authController.verifyUserByEmail(token);
-        res.status(200).json({
-            success: true,
-            message: 'Email verified successfully',
-            user: user
-        });
+        await authController.verifyUserByEmail(token);
     } catch (error) {
         console.error(error);
         const statusCode = error.status || 500;
