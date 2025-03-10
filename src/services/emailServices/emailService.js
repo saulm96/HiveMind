@@ -16,7 +16,7 @@ class EmailService {
     }
 
     async sendVerificationEmail(userEmail, verificationToken) {
-        const verificationUrl = `${process.env.APP_URL}/verify-email/${verificationToken}`;
+        const verificationUrl = `${process.env.APP_URL}/auth/verify-email/${verificationToken}`;
         const htmlContent = emailTemplates.verification({
             verificationUrl,
             appName: "HiveMind",
