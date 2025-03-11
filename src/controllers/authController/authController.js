@@ -3,6 +3,7 @@ import { generateEmailVerificationToken, verify } from "../../config/jwt.js";
 import emailService from "../../services/emailServices/emailService.js";
 import error from "../../utils/errors/userErrors.js";
 
+//Local authentication system
 
 /**
  * Logs in a user using regular login credentials.
@@ -27,8 +28,8 @@ async function regularLogin(userData) {
     if (!user) throw new error.INVALID_CREDENTIALS_IN_LOGIN();
 
     if (user.emailVerified == false) throw new error.EMAIL_NOT_VERIFIED();
-
     user.lastLogin = new Date();
+    
     return user;
 }
 
@@ -72,28 +73,40 @@ async function regularRegister(userData) {
     return newUser;
 }
 
+/**
+ * Verifies a user's email using a provided token.
+ *
+ * @async
+ * @function verifyUserByEmail
+ * @param {string} token - The token used for email verification.
+ * @throws {error.INVALID_TOKEN} If the token is invalid or its purpose is not "email_verification".
+ * @throws {error.INVALID_TOKEN} If the user cannot be found or the email does not match.
+ * @throws {error.EMAIL_ALREADY_VERIFIED} If the user's email is already verified.
+ * @returns {Promise<Object>} The user object after verification.
+ */
 async function verifyUserByEmail(token) {
     const decoded = verify(token);
     if (decoded.error || decoded.purpose !== "email_verification") throw new error.INVALID_TOKEN();
 
-    const { userId, email} = decoded;
+    const { id, email} = decoded;
     
-    const user = await UserMethods.verifyEmailToken(userId, token);
+    const user = await UserMethods.verifyEmailToken(id , token);
     if (!user) throw new error.INVALID_TOKEN();
     if (user.email !== email) throw new error.INVALID_TOKEN();
 
     if (user.emailVerified) throw new error.EMAIL_ALREADY_VERIFIED();
     
-    await UserMethods.toggleUserVerifiedStatus(user.id);
+    await UserMethods.toggleUserVerifiedStatusAndMarkTheTokenAsUsed(user.id);
     
     return user;
 }
 
 
+
 export const functions = {
     regularLogin,
     regularRegister,
-    verifyUserByEmail
+    verifyUserByEmail,
 }
 
 export default functions;
