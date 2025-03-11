@@ -1,6 +1,7 @@
 import sequelize from "sequelize";
 import { User, UserAuth, UserToken } from "./userIndex.js";
 import error from "../../utils/errors/userErrors.js";
+import { generateEmailVerificationToken } from "../../config/jwt.js";
 import { hashPassword, verifyPassword } from "../../config/bcrypt.js";
 
 class UserMethods {
@@ -12,7 +13,6 @@ class UserMethods {
      * @returns {Promise<Array>} - A promise that resolves to an array of user objects.
      * @throws {USER_NOT_FOUND} - If no users are found with the given substring in their username.
      */
-
     static async getUserByUsernameWithCaseInsensitiveForRegularSearch(username) {
         const user = await User.findAll({
             where: sequelize.where(
@@ -92,11 +92,70 @@ class UserMethods {
 
         const userObj = user.get({ plain: true });
         delete userObj.authMethods;
+
+        user.lastLogin = new Date();
+        await user.save();
+
         return userObj;
     }
 
+    static async saveRefreshToken(userId, userToken) {
+        const newToken = await UserToken.create({
+            userId: userId,
+            token: userToken,
+            tokenType: "refresh_token",
+            expiresAt: new Date(Date.now() + 60 * 60 * 1000),
+        })
+        return newToken;
+    }
 
+    static async markRefreshTokenAsUsed(userId) {
+        const userToken = await UserToken.findOne({
+            where: {
+                userId: userId,
+                tokenState: "active",
+                tokenType: "refresh_token"
+            }
+        })
+        userToken.tokenState = "used";
+        userToken.usedAt = new Date();
+        await userToken.save();
+        return userToken;
+    }
 
+    /**
+     * Checks the availability of an email and username.
+     * 
+     * @param {string} email - The email to verify for availability.
+     * @param {string} username - The username to verify for availability.
+     * @returns {Promise<void>} - A promise that resolves if both the email and 
+     * username are available.
+     * @throws {EMAIL_OR_USERNAME_ALREADY_IN_USE} - If either the email or 
+     * username is already in use.
+     */
+    static async validateEmailAndUsernameAvailability(email, username) {
+        const user = await User.findOne({
+            where: {
+                [sequelize.Op.or]: [
+                    { email: email },
+                    { username: username }
+                ]
+            }
+        });
+        if (user) throw new error.EMAIL_OR_USERNAME_ALREADY_IN_USE();
+    }
+
+    /**
+     * Creates a new user with the given data, using a local auth.
+     * 
+     * @param {object} userData - The data to create a new user with.
+     * @param {string} userData.firstName - The first name of the user to create.
+     * @param {string} userData.lastName - The last name of the user to create.
+     * @param {string} userData.username - The username of the user to create.
+     * @param {string} userData.email - The email of the user to create.
+     * @param {string} userData.password - The password of the user to create.
+     * @returns {Promise<User>} - A promise that resolves to the newly created user.
+     */
     static async createUserUsingRegularRegister(userData) {
         const { firstName, lastName, username, email, password } = userData;
 
@@ -122,16 +181,59 @@ class UserMethods {
         return newUser;
     }
 
-    static async validateEmailAndUsernameAvailability(email, username) {
-        const user = await User.findOne({
+    static async saveTokenToVerifyEmail(userId, token) {
+        const newTokenField = await UserToken.create({
+            userId: userId,
+            token: token,
+            tokenType: "email_verification",
+            expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000),
+        })
+
+        return newTokenField
+    }
+
+    static async verifyEmailToken(userId, token) {
+        const userToken = await UserToken.findOne({
             where: {
-                [sequelize.Op.or]: [
-                    { email: email },
-                    { username: username }
-                ]
+                userId: userId,
+                token: token,
+                tokenType: "email_verification"
             }
-        });
-        if (user) throw new error.EMAIL_OR_USERNAME_ALREADY_IN_USE();
+        })
+        if (userToken) {
+            return await User.findOne({
+                where: {
+                    id: userId
+                },
+                include: [{
+                    model: UserToken,
+                    as: 'tokens',
+                    where: {
+                        userId: userId
+                    }
+                }]
+            })
+        }
+
+        return userToken
+    }
+
+    static async toggleUserVerifiedStatusAndMarkTheTokenAsUsed(userId) {
+        const user = await User.findByPk(userId);
+        user.emailVerified = true;
+        
+        const token = await UserToken.findOne({
+            where: {
+                userId: userId,
+                tokenType: "email_verification"
+            }
+        })
+        token.usedAt = new Date();
+        token.tokenState = "used";
+        await token.save();
+        await user.save();
+
+        return user;
     }
 }
 

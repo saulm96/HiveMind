@@ -1,4 +1,5 @@
 import { SESClient, SendEmailCommand } from "@aws-sdk/client-ses";
+import { emailTemplates } from "./emailTemplates.js";
 import dotenv from "dotenv";
 
 dotenv.config();
@@ -15,7 +16,13 @@ class EmailService {
     }
 
     async sendVerificationEmail(userEmail, verificationToken) {
-        const verificationUrl = `${process.env.APP_URL}/verify-email/${verificationToken}`;
+        const verificationUrl = `http://localhost:3001/api/auth/verify-email/${verificationToken}`;
+        const htmlContent = emailTemplates.verification({
+            verificationUrl,
+            appName: "HiveMind",
+            appUrl: process.env.APP_URL,
+            expiryHours: 12
+        })
 
         const params = {
             Source: process.env.AWS_SES_FROM_EMAIL,
@@ -29,22 +36,17 @@ class EmailService {
                 },
                 Body: {
                     Html: {
-                        Data: `
-                        <h1> Welcome to HiveMind<h1>
-                        <p> Please, click the following link to verify your account: <a href="${verificationUrl}">Verify</a></p>
-                        <p> This link will expire in 12 hours.</p>
-                        `,
+                        Data: htmlContent,
                         Charset: "UTF-8"
                     },
                     Text: {
                         Data: `Please, click the following link to verify your account: ${verificationUrl}`,
                         Charset: "UTF-8"
-
                     }
                 }
             }
         }
-        try{
+        try {
             const command = new SendEmailCommand(params);
             const response = await this.ses.send(command);
             console.log("Email sent successfully:", response.MessageId);

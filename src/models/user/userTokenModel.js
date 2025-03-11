@@ -27,6 +27,11 @@ UserToken.init(
       type: DataTypes.ENUM('verification', 'password_reset', 'refresh_token'),
       allowNull: false,
     },
+    tokenState: {
+      type: DataTypes.ENUM('active', 'used', 'expired'),
+      allowNull: false,
+      defaultValue: 'active',
+    },
     expiresAt: {
       type: DataTypes.DATE,
       allowNull: false,

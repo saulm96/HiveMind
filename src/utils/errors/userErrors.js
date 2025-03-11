@@ -40,13 +40,45 @@ class EMAIL_OR_USERNAME_ALREADY_IN_USE extends Error {
     }
 }
 
+class EMAIL_NOT_VERIFIED extends Error {
+    constructor() {
+        super('Please verify your email before logging in'),
+            this.status = 400;
+    }
+}
+
+class INVALID_TOKEN extends Error {
+    constructor() {
+        super('Invalid token'),
+            this.status = 401;
+    }
+}
+
+class EMAIL_ALREADY_VERIFIED extends Error {
+    constructor() {
+        super('Email already verified'),
+            this.status = 400;
+    }
+}
+
+class TOKEN_NOT_SAVED extends Error {
+    constructor() {
+        super('Token not saved'),
+            this.status = 500;
+    }
+}
+
 export const errors = {
     USER_NOT_FOUND,
     INVALID_CREDENTIALS_IN_LOGIN,
     PASSWORD_DONT_MATCH,
     MISSING_PARAMETERS,
     PASSWORDS_DONT_MATCH,
-    EMAIL_OR_USERNAME_ALREADY_IN_USE
+    EMAIL_OR_USERNAME_ALREADY_IN_USE,
+    EMAIL_NOT_VERIFIED,
+    INVALID_TOKEN,
+    EMAIL_ALREADY_VERIFIED,
+    TOKEN_NOT_SAVED
 
 }
 

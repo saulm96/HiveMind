@@ -1,14 +1,16 @@
 import { Router } from "express";
-import userApiRutes from "./userApiRutes.js"
-import authApiController from "../../controllers/authController/authApiController.js"
 
-import { isAuthenticated } from "../../middlewares/authMiddleware.js"
+import userApiRutes from "./userApiRutes.js"
+import authApiRutes from "./authApiRutes.js"
+
+import {isAuthenticated} from "../../middlewares/authMiddleware.js"
+
+
 
 const router = Router();
 
-router.use( "/users", userApiRutes)
+router.use( "/users", isAuthenticated, userApiRutes)
+router.use( "/auth", authApiRutes)
 
-router.post("/login", authApiController.regularLogin);
-router.post("/register", authApiController.regularRegister);
 
 export default router;
