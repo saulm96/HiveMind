@@ -92,7 +92,35 @@ class UserMethods {
 
         const userObj = user.get({ plain: true });
         delete userObj.authMethods;
+
+        user.lastLogin = new Date();
+        await user.save();
+
         return userObj;
+    }
+
+    static async saveRefreshToken(userId, userToken) {
+        const newToken = await UserToken.create({
+            userId: userId,
+            token: userToken,
+            tokenType: "refresh_token",
+            expiresAt: new Date(Date.now() + 60 * 60 * 1000),
+        })
+        return newToken;
+    }
+
+    static async markRefreshTokenAsUsed(userId) {
+        const userToken = await UserToken.findOne({
+            where: {
+                userId: userId,
+                tokenState: "active",
+                tokenType: "refresh_token"
+            }
+        })
+        userToken.tokenState = "used";
+        userToken.usedAt = new Date();
+        await userToken.save();
+        return userToken;
     }
 
     /**
@@ -189,11 +217,11 @@ class UserMethods {
 
         return userToken
     }
+
     static async toggleUserVerifiedStatusAndMarkTheTokenAsUsed(userId) {
         const user = await User.findByPk(userId);
         user.emailVerified = true;
-        await user.save();
-
+        
         const token = await UserToken.findOne({
             where: {
                 userId: userId,
@@ -201,7 +229,10 @@ class UserMethods {
             }
         })
         token.usedAt = new Date();
+        token.tokenState = "used";
         await token.save();
+        await user.save();
+
         return user;
     }
 }

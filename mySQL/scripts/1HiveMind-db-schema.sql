@@ -55,6 +55,7 @@ CREATE TABLE IF NOT EXISTS `HiveMind`.`user_tokens` (
   `userId` CHAR(36) NOT NULL,
   `token` VARCHAR(500) NOT NULL,
   `tokenType` ENUM('email_verification', 'password_reset', 'refresh_token') NOT NULL,
+  `tokenState` ENUM('active', 'used', 'expired') NOT NULL DEFAULT 'active',
   `expiresAt` DATETIME NOT NULL,
   `createdAt` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `usedAt` DATETIME NULL,
