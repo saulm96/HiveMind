@@ -6,18 +6,20 @@ const SECRET = process.env.JWT_SECRET;
 
 
 function generateAuthToken(userId, username, email) {
-    return jwt.sign({
-        userId,
+    const payload = {
+        id: userId,
         username,
         email,
-        purpose: "authentication"
-    }, SECRET, {
+        purpose: "refresh_token"
+    };
+    console.log('Payload a firmar:', payload);
+    return jwt.sign(payload, SECRET, {
         expiresIn: "1h"
-    })
+    });
 }
 function generateEmailVerificationToken(userId, email) {
     return jwt.sign({
-        userId,
+        id: userId,
         email,
         purpose: "email_verification"
     }, SECRET, {

@@ -61,6 +61,13 @@ class EMAIL_ALREADY_VERIFIED extends Error {
     }
 }
 
+class TOKEN_NOT_SAVED extends Error {
+    constructor() {
+        super('Token not saved'),
+            this.status = 500;
+    }
+}
+
 export const errors = {
     USER_NOT_FOUND,
     INVALID_CREDENTIALS_IN_LOGIN,
@@ -70,7 +77,8 @@ export const errors = {
     EMAIL_OR_USERNAME_ALREADY_IN_USE,
     EMAIL_NOT_VERIFIED,
     INVALID_TOKEN,
-    EMAIL_ALREADY_VERIFIED
+    EMAIL_ALREADY_VERIFIED,
+    TOKEN_NOT_SAVED
 
 }
 
