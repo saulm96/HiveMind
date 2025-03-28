@@ -34,7 +34,8 @@ UserToken.init(
     },
     expiresAt: {
       type: DataTypes.DATE,
-      allowNull: false,
+      allowNull: true,
+      defaultValue: null,
     },
     usedAt: {
       type: DataTypes.DATE,
