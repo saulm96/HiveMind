@@ -1,6 +1,6 @@
 import authController from "./authController.js";
-import {saveRefreshToken} from "../../utils/helpers/authHelpers.js";
-import { generateAuthToken } from "../../config/jwt.js";
+import { saveRefreshToken, generateAndSaveCSRFTokens } from "../../utils/helpers/authHelpers.js";
+import { generateAuthToken, verify } from "../../config/jwt.js";
 
 async function regularLogin(req, res) {
     try {
@@ -20,11 +20,12 @@ async function regularLogin(req, res) {
         });
 
         await saveRefreshToken(validUser.id, userToken)
- 
+        const csrfToken = await generateAndSaveCSRFTokens(validUser.id);
         res.status(200).json({
             success: true,
             message: 'User logged in successfully',
-            user: validUser
+            user: validUser,
+            csrfToken: csrfToken
         });
     } catch (error) {
         const statusCode = error.status || 500;
@@ -72,10 +73,22 @@ async function verifyUserByEmail(req, res) {
         });
     }
 }
+
+async function checkTokenForAuthContext(req, res) {
+    const token = req.cookies.token;
+    if (!token) return res.json({ isValid: false });
+    try {
+        verify(token);
+        res.status(200).json({ isValid: true });
+    } catch (error) {
+        res.status(401).json({ isValid: false });
+    }
+}
 export const functions = {
     regularLogin,
     regularRegister,
-    verifyUserByEmail
+    verifyUserByEmail,
+    checkTokenForAuthContext
 }
 
 export default functions;

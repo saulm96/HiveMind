@@ -1,7 +1,7 @@
 import sequelize from "sequelize";
+import crypto from 'crypto';
 import { User, UserAuth, UserToken } from "./userIndex.js";
 import error from "../../utils/errors/userErrors.js";
-import { generateEmailVerificationToken } from "../../config/jwt.js";
 import { hashPassword, verifyPassword } from "../../config/bcrypt.js";
 
 class UserMethods {
@@ -100,6 +100,18 @@ class UserMethods {
     }
 
     static async saveRefreshToken(userId, userToken) {
+        const checkPreviousToken = await UserToken.findOne({
+            where: {
+                userId: userId,
+                tokenState: "active",
+                tokenType: "refresh_token"
+            }
+        })
+        if (checkPreviousToken) {
+            checkPreviousToken.tokenState = "used";
+            checkPreviousToken.usedAt = new Date();
+            await checkPreviousToken.save();
+        }
         const newToken = await UserToken.create({
             userId: userId,
             token: userToken,
@@ -122,7 +134,56 @@ class UserMethods {
         await userToken.save();
         return userToken;
     }
+static async getVerifyTokenDuration(authToken) {
+        const userToken = await UserToken.findOne({
+            where: {
+                token: authToken,
+                tokenType: "refresh_token",
+                tokenState: "active"
+            }
+        })
+        if (userToken.expiresAt < new Date()) {
+            userToken.tokenState = "expired";
+            await userToken.save();
+            return false;
+        }
+        return userToken.expiresAt;
+    }
+    
+    static async generateAndSaveCSRFTokens(userId) {
+        const checkPreviousToken = await UserToken.findOne({
+            where: {
+                userId: userId,
+                tokenType: "csrf_token"
+            }
+        })
+        if (checkPreviousToken) {
+            checkPreviousToken.tokenState = "used";
+            checkPreviousToken.usedAt = new Date();
+            await checkPreviousToken.save();
+        }
 
+        const csrfToken = crypto.randomBytes(16).toString('hex');
+        const newToken = await UserToken.create({
+            userId: userId,
+            token: csrfToken,
+            tokenType: "csrf_token",
+        })
+        return newToken.token;
+    }
+    
+    
+    static async verifyCSRFToken(userId, token) {
+        const userToken = await UserToken.findOne({
+            where: {
+                userId: userId,
+                token: token,
+                tokenType: "csrf_token",
+                tokenState: "active"
+            }
+        })
+        return userToken.token;
+    }
     /**
      * Checks the availability of an email and username.
      * 
